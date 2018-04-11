@@ -1,0 +1,13 @@
+Faisons en sorte de pouvoir se lire et se relire, avec des noms de variables correctes et des fonctions lisibles ok ? :)
+
+Ce fichier permet de faire la passerelle entre nous deux sans qu'on ait forcément besoin d'aller chercher des infos importantes dans une n-ième conv messenger obscure. Même si biensûr faut qu'on puisse parler plus en détail en dehors.
+Hésite pas à tout noter dedans, même ce que t'as commencé et pas réussi à faire.
+
+--Avancées : 
+	- Création d'un fichier hash.py.
+	Il faut dans celui-ci créer l'itérateur sur les segments utilisé dans la fonction reconnect du fichier graph.py.
+
+--Problèmes :
+	- Je ne comprends pas forcément bien la structure demandée pour le hachage.
+	- Le sujet est un peu difficile à comprendre généralement.
+

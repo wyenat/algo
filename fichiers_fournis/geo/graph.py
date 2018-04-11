@@ -36,6 +36,18 @@ class Graph:
         edges = (e for (p, edges) in self.vertices.items() for e in edges if e.endpoints[0] == p)
         return "\n".join(c.svg_content() for c in chain(self.vertices.keys(), edges))
 
+    ''' Pseudo code 1 : pour cette fonction :
+    Entrées : G : Graphe
+    soit C l’ensemble des composantes connexes de G;
+    pour chaque segment (p 1 , p 2 )donné par l’itérateur faire
+        si p 1 et p 2 appartiennent à deux composantes différentes alors
+            ajouter (p 1 , p 2 ) aux arètes de G;
+            fusionner les deux composantes correspondantes de C;
+        fin
+        si |C| = 1 alors
+            retourner
+        fin
+    fin '''
 
     def reconnect(self, hash_points):
         """
@@ -43,7 +55,13 @@ class Graph:
         if hash_points is true then use hashed segments iterator
         else use quadratic segments iterator.
         """
-        pass
+        if hash_points: #Cas du pseudo code 1
+            for segment in ordered_segments(self.vertices):
+                #Je ne sais pas comment faire cette ligne :
+                #si p 1 et p 2 appartiennent à deux composantes différentes alors
+                pass
+        else:
+            pass
 
     def even_degrees(self, hash_points):
         """
