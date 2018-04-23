@@ -19,6 +19,7 @@ class Graph:
                 if point not in self.vertices:
                     self.vertices[point] = []
                 self.vertices[point].append(segment)
+        self.connexes = self.composantes_connexes([key for key in self.vertices.keys()]) # A CHANGER
 
     def bounding_quadrant(self):
         """
@@ -61,7 +62,13 @@ class Graph:
                 #si p 1 et p 2 appartiennent à deux composantes différentes alors
                 pass
         else:
-            pass
+            point_relais = self.connexes.parents.keys()[0]
+            for parent in self.connexes.parents.keys():
+                if parent is not point_relais:
+                    self.connexes.union(parent, point_relais)
+                    segment = Segment([parent, point_relais])
+                    self.vertices[point_relais].append(segment)
+                    self.vertices[parent].append(segment)
 
     def even_degrees(self, hash_points):
         """
@@ -76,3 +83,13 @@ class Graph:
         return eulerian cycle. precondition: all degrees are even.
         """
         pass
+
+    def composantes_connexes(self, points):
+        """
+        calcule les composantes connexes et crée les classes dans l'union-find
+        """
+        connexes = UnionFind(points)
+        for point in connexes.parents.keys():
+            for p in [[point2 for point2 in bout if bout!=point] for bout in self.vertices[points].endpoints]:
+                connexes.union(point, p) #Passage linéaire (suppression des élements de l'iterateur une fois traités)
+        return connexes
