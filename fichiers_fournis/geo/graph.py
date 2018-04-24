@@ -19,14 +19,14 @@ class Graph:
                 if point not in self.vertices:
                     self.vertices[point] = []
                 self.vertices[point].append(segment)
-        self.connexes = self.composantes_connexes([key for key in self.vertices.keys()]) # A CHANGER
+        self.connexes = None
 
     def bounding_quadrant(self):
         """
         return min quadrant containing underlying objects.
         """
         quadrant = Quadrant.empty_quadrant(2)
-        for point in self.vertices:
+        for point in self.vertices:elf.composantes_connexes([key for key in self.vertices.keys()]) # A CHANGER
             quadrant.add_point(point)
         return quadrant
 
@@ -62,6 +62,7 @@ class Graph:
                 #si p 1 et p 2 appartiennent à deux composantes différentes alors
                 pass
         else:
+            self.connexes = self.composantes_connexes([key for key in self.vertices.keys()])
             point_relais = self.connexes.parents.keys()[0]
             for parent in self.connexes.parents.keys():
                 if parent is not point_relais:
