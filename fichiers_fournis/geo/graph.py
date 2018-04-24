@@ -14,6 +14,7 @@ class Graph:
     """
     def __init__(self, segments):
         self.vertices = dict()
+        self.nb_segment = len(segments)
         for segment in segments:
             for point in segment.endpoints:
                 if point not in self.vertices:
@@ -74,20 +75,6 @@ class Graph:
                     self.vertices[segments_tries[compteur].endpoints[1]].append(segments_tries[compteur])
                 compteur += 1
 
-    def even_degrees(self, hash_points):
-        """
-        greedily add edges until all degrees are even.
-        if hash_points is true then use hashed segments iterator
-        else use quadratic segments iterator.
-        """
-        pass
-
-    def eulerian_cycle(self):
-        """
-        return eulerian cycle. precondition: all degrees are even.
-        """
-        pass
-
     def composantes_connexes(self):
         """
         calcule les composantes connexes et crée les classes dans l'union-find
@@ -121,3 +108,55 @@ class Graph:
                     for flement in partie_connexe[autre_representant]:
                         segments.append(Segment([element, flement]))
         return sorted(segments, key= lambda seg: seg.length())
+
+
+    def even_degrees(self, hash_points):
+        """
+        greedily add edges until all degrees are even.
+        if hash_points is true then use hashed segments iterator
+        else use quadratic segments iterator.
+        """
+        pass
+
+    def eulerian_cycle(self):
+        """
+        return eulerian cycle. precondition: all degrees are even.
+        """
+        """ Alors voilà l'idée : on part d'un point, et on tente d'établir un cycle depuis
+        un point du graphe, et on suit à chaque fois le premier segment disponible par un interateur
+        sur les segments, en le notant dans un tableau des segments utilisés :
+        - s'il y en a plus de deux, on sauvegarde l'état des segments utilisés
+        avant de faire ce choix, puis on prend le premier
+        - s'il n'y en pas, on revient à l'état sauvagardé, et on place le choix qu'on avait fait en premier
+        en dernier, puis on réapplique l'algorithme
+         """
+         point = next(iter(self.vertices.keys())) #A voir si on peut faire mieux
+         used = []
+         pt_restore = []
+         compteur = 0
+         nombre_passage = 0
+         while compteur < self.nb_segment **3:
+             dispo = self.iterateur_segments_non_utilises(point, used)
+             if nombre_passage != 0:
+                 dispo[0], dispo[nombre_passage] = dispo[nombre_passage], dispo[0]
+             if len(dispo) > 1:
+                 if point != pt_restore[-1]:
+                     restore = used.copy()
+                     pt_restore.append(Point(point.coordinates))
+                     nombre_passage = 0
+             if len(dispo) == 0:
+                 if len(used) == self.nb_segment:
+                     return used
+                 point = pt_restore.pop()
+                 used = restore
+                 nombre_passage += 1
+                 continue
+             used.append(Segment([point, dispo[0]]))
+             point = dispo[0]
+         print("Algo en n³, aucun intérêt ma louloute")
+
+    def iterateur_segments_non_utilises(self, point, used):
+        '''
+        return all segment available from a point that haven't being used before
+        '''
+        pass
