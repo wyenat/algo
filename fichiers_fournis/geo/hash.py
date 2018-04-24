@@ -26,11 +26,17 @@ fin
 '''
 
 def hacher(points, t):
-    '''
+    '''bles = hacher(points, t) #tables est un dictionnaire
+    collisions = tables!={} or max(len([valeurs for valeurs in tables.values()]))>1
+    # J'estime qu'il n'y a pas de collision quand chaque clé a au plus un élément ou que la liste est vide
+    while collisions:
+        t = t/2
+        tables = {**tables, **hacher(points, t)}
     the first hash table, defined by h(p) = (int(p.x/t), int(p.y/t)) as in the subject
     requires an array of the considered points and the precision t
     returnes the hash table
     '''
+
     return {}
 
 def ordered_segments(points):

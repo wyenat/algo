@@ -6,7 +6,6 @@ from geo.quadrant import Quadrant
 from geo.union import UnionFind
 from geo.segment import Segment
 from geo.hash import ordered_segments
-from geo.point import Point
 
 class Graph:
     """
@@ -63,15 +62,17 @@ class Graph:
                 #si p 1 et p 2 appartiennent à deux composantes différentes alors
                 pass
         else:
-            points = [key for key in self.vertices.keys()]
-            self.connexes = self.composantes_connexes(points)
+            self.connexes = self.composantes_connexes()
             representant = self.connexes.iter_repr()
             point_relais = next(representant) #A améliorer c complexité caca
-            for non_connexe in representant :
-                self.connexes.union(non_connexe, point_relais)
-                segment = Segment([non_connexe, point_relais])
-                self.vertices[point_relais].append(segment)
-                self.vertices[non_connexe].append(segment)
+            segments_tries = self.rajouter_segments()
+            compteur = 0
+            while self.connexes.size != 1:
+                if self.connexes.find(segments_tries[compteur].endpoints[0]) != self.connexes.find(segments_tries[compteur].endpoints[1]):
+                    self.connexes.union(segments_tries[compteur].endpoints[0], segments_tries[compteur].endpoints[1])
+                    self.vertices[segments_tries[compteur].endpoints[0]].append(segments_tries[compteur])
+                    self.vertices[segments_tries[compteur].endpoints[1]].append(segments_tries[compteur])
+                compteur += 1
 
     def even_degrees(self, hash_points):
         """
@@ -87,12 +88,36 @@ class Graph:
         """
         pass
 
-    def composantes_connexes(self, points):
+    def composantes_connexes(self):
         """
         calcule les composantes connexes et crée les classes dans l'union-find
         """
+        points = [key for key in self.vertices.keys()]
         connexes = UnionFind(points)
         for point in points:
-            for p in [[bout for bout in segment.endpoints] for segment in self.vertices[point]]:
+            for p in [[bout for bout in segment.endpoints if bout!=point] for segment in self.vertices[point]]:
                 connexes.union(point, p[0])
         return connexes
+
+    def rajouter_segments(self):
+        '''
+        return the shortest segments needed to connect all the composantes_connexes
+        '''
+        partie_connexe = {}
+        segments = []
+        for representant in self.connexes.iter_repr():
+            if representant not in partie_connexe:
+                partie_connexe[representant] = [representant]
+            for element in self.connexes.parents.keys():
+                if self.connexes.parents[element] == representant:
+                    partie_connexe[representant].append(element)
+        deja_passe = []
+        for representant in partie_connexe:
+            deja_passe.append(representant)
+            for element in partie_connexe[representant]:
+                for autre_representant in partie_connexe:
+                    if autre_representant in deja_passe:
+                        continue
+                    for flement in partie_connexe[autre_representant]:
+                        segments.append(Segment([element, flement]))
+        return sorted(segments, key= lambda seg: seg.length())
