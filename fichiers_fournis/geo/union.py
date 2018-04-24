@@ -50,6 +50,14 @@ class UnionFind:
                 if rank1 == rank2:
                     self.ranks[root1] += 1
 
+    def iter_repr(self):
+        '''
+        creates an iterator of all representants
+        '''
+        for item in self.parents.keys():
+            if item == self.parents[item]:
+                yield item
+
     def __len__(self):
         """
         return how many different groups we have

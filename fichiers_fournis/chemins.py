@@ -24,16 +24,16 @@ def compute_path(filename, hash_points, animate, display):
     segments = load_segments(filename)
 
     graph = Graph(segments)
-    if display:
+    '''if display:
         print("loaded graph")
-        tycat(graph)
+        tycat(graph)'''
 
     graph.reconnect(hash_points)
     if display:
         print("reconnected graph")
         tycat(graph)
 
-    graph.even_degrees(hash_points)
+    '''graph.even_degrees(hash_points)
     if display:
         print("graph has even degrees")
         tycat(graph)
@@ -44,7 +44,7 @@ def compute_path(filename, hash_points, animate, display):
         tycat(cycle)
 
     if animate:
-        animate_cycle(cycle)
+        animate_cycle(cycle)'''
 
 def main():
     """

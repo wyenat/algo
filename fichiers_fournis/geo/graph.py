@@ -6,6 +6,7 @@ from geo.quadrant import Quadrant
 from geo.union import UnionFind
 from geo.segment import Segment
 from geo.hash import ordered_segments
+from geo.point import Point
 
 class Graph:
     """
@@ -26,7 +27,7 @@ class Graph:
         return min quadrant containing underlying objects.
         """
         quadrant = Quadrant.empty_quadrant(2)
-        for point in self.vertices:elf.composantes_connexes([key for key in self.vertices.keys()]) # A CHANGER
+        for point in self.vertices:
             quadrant.add_point(point)
         return quadrant
 
@@ -62,14 +63,15 @@ class Graph:
                 #si p 1 et p 2 appartiennent à deux composantes différentes alors
                 pass
         else:
-            self.connexes = self.composantes_connexes([key for key in self.vertices.keys()])
-            point_relais = self.connexes.parents.keys()[0]
-            for parent in self.connexes.parents.keys():
-                if parent is not point_relais:
-                    self.connexes.union(parent, point_relais)
-                    segment = Segment([parent, point_relais])
-                    self.vertices[point_relais].append(segment)
-                    self.vertices[parent].append(segment)
+            points = [key for key in self.vertices.keys()]
+            self.connexes = self.composantes_connexes(points)
+            representant = self.connexes.iter_repr()
+            point_relais = next(representant) #A améliorer c complexité caca
+            for non_connexe in representant :
+                self.connexes.union(non_connexe, point_relais)
+                segment = Segment([non_connexe, point_relais])
+                self.vertices[point_relais].append(segment)
+                self.vertices[non_connexe].append(segment)
 
     def even_degrees(self, hash_points):
         """
@@ -90,7 +92,7 @@ class Graph:
         calcule les composantes connexes et crée les classes dans l'union-find
         """
         connexes = UnionFind(points)
-        for point in connexes.parents.keys():
-            for p in [[point2 for point2 in bout if bout!=point] for bout in self.vertices[points].endpoints]:
-                connexes.union(point, p) #Passage linéaire (suppression des élements de l'iterateur une fois traités)
+        for point in points:
+            for p in [[bout for bout in segment.endpoints] for segment in self.vertices[point]]:
+                connexes.union(point, p[0])
         return connexes
