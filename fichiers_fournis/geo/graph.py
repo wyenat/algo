@@ -121,15 +121,19 @@ class Graph:
             return
         else:
             self.points_degre_impair = [point for point in self.vertices.keys() if len(self.vertices[point])%2]
+            print(len(self.points_degre_impair))
             segments = self.quad_iter_impaire()
             compteur = 0
-            while len(self.points_degre_impair) != 0:
-                segment = next(segments)
-                if segment.coordinates[0] in self.points_degre_impair and segment.coordinates[1] in in self.points_degre_impair:
-                    self.vertices[segment.coordinates[0]].append(segment)
-                    self.vertices[segment.coordinates[1]].append(segment)
-                    self.points_degre_impair.remove(segment.coordinates[0])
-                    self.points_degre_impair.remove(segment.coordinates[1])
+            while len(self.points_degre_impair) > 0 and compteur < len(segments):
+                segment = segments[compteur]
+                if (segment.endpoints[0] in self.points_degre_impair):
+                    if (segment.endpoints[1] in self.points_degre_impair):
+                        if segment.endpoints[0] != segment.endpoints[1]:
+                            self.vertices[segment.endpoints[0]].append(segment)
+                            self.vertices[segment.endpoints[1]].append(segment)
+                            self.points_degre_impair.remove(segment.endpoints[0])
+                            self.points_degre_impair.remove(segment.endpoints[1])
+                            print("Au {} ème passage, on a la liste de point : {}".format(compteur,self.points_degre_impair))
                 compteur += 1
             print("On sort de la boucle en {} étapes".format(compteur))
 
@@ -137,7 +141,12 @@ class Graph:
         '''
         return an iterator of all segments, sorted by increasing length, between all of the points having odd degrees
         '''
-        pass
+        segments_concernes = []
+        n = len(self.points_degre_impair)
+        for i in range(n-1):
+            for j in range(i,n-1):
+                segments_concernes.append(Segment([self.points_degre_impair[i],self.points_degre_impair[j]]))
+        return sorted(segments_concernes, key=lambda seg: seg.length())
 
 
     def eulerian_cycle(self):

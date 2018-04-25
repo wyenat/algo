@@ -6,7 +6,7 @@ from geo.segment import Segment
 from geo.quadrant import Quadrant
 from math import floor
 
-TAILLE_ENVIRONNEMENT = 10
+TAILLE_ENVIRONNEMENT = 1
 
 ''' Le pseudo code à produire est le suivant, dans la fonction ordered_segments :
 Entrées : points considérés
@@ -20,7 +20,10 @@ fin
 pour chaque jeu de tables, des dernières, aux premières faire
     pour chaque table parmi les 4 du jeu faire
         pour chaque clef faire
-            pour chaque combinaison de valeurs associées à la clef faire
+            pour chaque combinaison de valeurs ass
+Au 5 ème passage, on a la liste de point : [(0.037499981373535246, -0.057596208058798976), (-0.18529941782343998, 0.07230760250886681), (0.17920931385274635, -0.057596208058798976), (-0.024891443571935172, -0.1656
+6132602097403)]
+Au 6 ème passage, on aociées à la clef faire
                 proposer le segment;
             fin
         fin
@@ -66,11 +69,12 @@ def collisions(structure):
     """
     Determine si les 4 dernières tables de la structure contiennent des collisions
     """
-    for table in structure[-5:-1]:
+    for table in structure[0:4]:
         for key in table.keys():
             if len(table[key]) > 1:
-                return False
-    return True
+                print(table[key], Segment([table[key][0],table[key][1]]).length())
+                return True
+    return False
 
 def produit_cartesien(liste1, liste2):
     """
@@ -88,14 +92,14 @@ def ordered_segments(points_consideres):
     returns an iterable of segments
     '''
     t = 1
-
     tables = construire_hashage(points_consideres, t)
     while collisions(tables):
         t = t/2
-        tables = tables + construire_hashage(points_consideres, t)
-    for i in range(0, (len(tables)//4)):
-        tables_considerees = tables[-4*i - 4 : -4*i - 1]
-        print(tables_considerees)
+        tables =  construire_hashage(points_consideres, t) + tables
+        print(len(tables)//4)
+    for i in range(0, (len(tables))//4):
+        tables_considerees = tables[4*i : 4*i + 4]
+        #print(tables_considerees)
         liste_points = [point for point in tables_considerees[0].values()] + [point for point in tables_considerees[1].values()] + [point for point in tables_considerees[2].values()] + [point for point in tables_considerees[3].values()]
         for couple in produit_cartesien(liste_points, liste_points):
             if couple[0] != couple[1]:
