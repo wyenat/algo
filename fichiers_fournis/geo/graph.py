@@ -116,7 +116,28 @@ class Graph:
         if hash_points is true then use hashed segments iterator
         else use quadratic segments iterator.
         """
+        if hash_points:
+            return
+        else:
+            self.points_degre_impair = [point for point in self.vertices.keys() if len(self.vertices[point])%2]
+            segments = self.quad_iter_impaire()
+            compteur = 0
+            while len(self.points_degre_impair) != 0:
+                segment = next(segments)
+                if segment.coordinates[0] in self.points_degre_impair and segment.coordinates[1] in in self.points_degre_impair:
+                    self.vertices[segment.coordinates[0]].append(segment)
+                    self.vertices[segment.coordinates[1]].append(segment)
+                    self.points_degre_impair.remove(segment.coordinates[0])
+                    self.points_degre_impair.remove(segment.coordinates[1])
+                compteur += 1
+            print("On sort de la boucle en {} étapes".format(compteur))
+
+    def quad_iter_impaire(self):
+        '''
+        return an iterator of all segments, sorted by increasing length, between all of the points having odd degrees
+        '''
         pass
+
 
     def eulerian_cycle(self):
         """
@@ -129,31 +150,30 @@ class Graph:
         avant de faire ce choix, puis on prend le premier
         - s'il n'y en pas, on revient à l'état sauvagardé, et on place le choix qu'on avait fait en premier
         en dernier, puis on réapplique l'algorithme
-         """
-         point = next(iter(self.vertices.keys())) #A voir si on peut faire mieux
-         used = []
-         pt_restore = []
-         compteur = 0
-         nombre_passage = 0
-         while compteur < self.nb_segment **3:
-             dispo = self.iterateur_segments_non_utilises(point, used)
-             if nombre_passage != 0:
-                 dispo[0], dispo[nombre_passage] = dispo[nombre_passage], dispo[0]
-             if len(dispo) > 1:
-                 if point != pt_restore[-1]:
-                     restore = used.copy()
-                     pt_restore.append(Point(point.coordinates))
-                     nombre_passage = 0
-             if len(dispo) == 0:
-                 if len(used) == self.nb_segment:
-                     return used
-                 point = pt_restore.pop()
-                 used = restore
-                 nombre_passage += 1
-                 continue
-             used.append(Segment([point, dispo[0]]))
-             point = dispo[0]
-         print("Algo en n³, aucun intérêt ma louloute")
+        point = next(iter(self.vertices.keys()))
+        used = []
+        pt_restore = []
+        compteur = 0
+        nombre_passage = 0
+        while compteur < self.nb_segment **3:
+            dispo = self.iterateur_segments_non_utilises(point, used)
+            if nombre_passage != 0:
+                dispo[0], dispo[nombre_passage] = dispo[nombre_passage], dispo[0]
+            if len(dispo) > 1:
+                if point != pt_restore[-1]:
+                    restore = used.copy()
+                    pt_restore.append(Point(point.coordinates))
+                    nombre_passage = 0
+            if len(dispo) == 0:
+                if len(used) == self.nb_segment:
+                    return used
+                point = pt_restore.pop()
+                used = restore
+                nombre_passage += 1
+                continue
+            used.append(Segment([point, dispo[0]]))
+            point = dispo[0]
+        print("Algo en n³, aucun intérêt ma louloute")"""
 
     def iterateur_segments_non_utilises(self, point, used):
         '''
