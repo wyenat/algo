@@ -195,14 +195,16 @@ class Graph:
         while compteur < self.nb_segment **3 and len(used) <= self.nb_segment:
             print("passage numéro : {}".format(compteur))
             print("On a une chaîne de {} segments sur les {} voulus, et elle est eulérienne : {}".format(len(used), self.nb_segment, len(set(used)) == len(used)))
+            print("Il s'agit du {} passage sur ce point".format(nombre_passage))
             dispo = self.liste_segments_non_utilises(point, used)
             if nombre_passage != 0:
+                print(len(dispo))
                 dispo[0], dispo[nombre_passage] = dispo[nombre_passage], dispo[0]
+                print(dispo[0]!=dispo[nombre_passage])
             if len(dispo) > 1:
                 if point != pt_restore[-1]:
                     restore = used.copy()
                     pt_restore.append(point)
-                    print(pt_restore[-1])
                     nombre_passage = 0
             if len(dispo) == 0:
                 print("ON PASSE DANS 0 SEGMENTS")
@@ -212,7 +214,7 @@ class Graph:
                 used = restore
                 nombre_passage += 1
                 continue
-            used.append(Segment([point, dispo[0]]))
+            used.append(dispo[0])
             point = dispo[0].endpoint_not(point)
             compteur += 1
         print("Algo en n³, aucun intérêt ma louloute")
