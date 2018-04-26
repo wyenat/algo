@@ -5,6 +5,7 @@ from itertools import chain, combinations
 from geo.quadrant import Quadrant
 from geo.union import UnionFind
 from geo.segment import Segment
+from geo.point import Point
 from geo.hash import ordered_segments
 
 class Graph:
@@ -66,6 +67,7 @@ class Graph:
                     self.connexes.union(segment.endpoints[0], segment.endpoints[1])
                     self.vertices[segment.endpoints[0]].append(segment)
                     self.vertices[segment.endpoints[1]].append(segment)
+                    self.nb_segment += 1
         else:
             segments_tries = self.rajouter_segments()
             compteur = 0
@@ -74,6 +76,7 @@ class Graph:
                     self.connexes.union(segments_tries[compteur].endpoints[0], segments_tries[compteur].endpoints[1])
                     self.vertices[segments_tries[compteur].endpoints[0]].append(segments_tries[compteur])
                     self.vertices[segments_tries[compteur].endpoints[1]].append(segments_tries[compteur])
+                    self.nb_segment +=1
                 compteur += 1
 
     def composantes_connexes(self):
@@ -133,9 +136,21 @@ class Graph:
                             self.vertices[segment.endpoints[1]].append(segment)
                             self.points_degre_impair.remove(segment.endpoints[0])
                             self.points_degre_impair.remove(segment.endpoints[1])
-                            print("Au {} ème passage, on a la liste de point : {}".format(compteur,self.points_degre_impair))
+                            self.nb_segment += 1
                 compteur += 1
             print("On sort de la boucle en {} étapes".format(compteur))
+            if len(self.points_degre_impair) == 2:
+                #Il faut encore tracer le segment entre les 2 derniers points
+                p1 = self.points_degre_impair[0]
+                p2 = self.points_degre_impair[1]
+                segment = Segment([p1, p2])
+                self.vertices[p1].append(segment)
+                self.vertices[p2].append(segment)
+                self.points_degre_impair.remove(p1)
+                self.points_degre_impair.remove(p2)
+                self.nb_segment += 1
+            self.points_degre_impair = [point for point in self.vertices.keys() if len(self.vertices[point])%2]
+            print("Le graphe ne contient que des degrés pairs : {}".format(self.has_even_degrees()))
 
     def quad_iter_impaire(self):
         '''
@@ -147,6 +162,14 @@ class Graph:
             for j in range(i,n-1):
                 segments_concernes.append(Segment([self.points_degre_impair[i],self.points_degre_impair[j]]))
         return sorted(segments_concernes, key=lambda seg: seg.length())
+
+    def has_even_degrees(self):
+        """
+        return a boolean that states if the graphs contains only points with even degrees
+        """
+        nombre = len([point for point in self.vertices.keys() if len(self.vertices[point])%2])
+        return nombre == 0
+
 
 
     def eulerian_cycle(self):
@@ -161,33 +184,46 @@ class Graph:
         - s'il n'y en pas, on revient à l'état sauvagardé, et on place le choix qu'on avait fait en premier
         en dernier, puis on réapplique l'algorithme
          """
-        ''' point = next(iter(self.vertices.keys())) #A voir si on peut faire mieux
-         used = []
-         pt_restore = []
-         compteur = 0
-         nombre_passage = 0
-         while compteur < self.nb_segment **3:
-             dispo = self.iterateur_segments_non_utilises(point, used)
-             if nombre_passage != 0:
-                 dispo[0], dispo[nombre_passage] = dispo[nombre_passage], dispo[0]
-             if len(dispo) > 1:
-                 if point != pt_restore[-1]:
-                     restore = used.copy()
-                     pt_restore.append(Point(point.coordinates))
-                     nombre_passage = 0
-             if len(dispo) == 0:
-                 if len(used) == self.nb_segment:
-                     return used
-                 point = pt_restore.pop()
-                 used = restore
-                 nombre_passage += 1
-                 continue
-             used.append(Segment([point, dispo[0]]))
-             point = dispo[0]
-         print("Algo en n³, aucun intérêt ma louloute") '''
+        for poin in self.vertices.keys():
+            point = poin
+            break
+        print(point)
+        used = []
+        pt_restore = [point]
+        compteur = 0
+        nombre_passage = 0
+        while compteur < self.nb_segment **3 and len(used) <= self.nb_segment:
+            print("passage numéro : {}".format(compteur))
+            print("On a une chaîne de {} segments sur les {} voulus, et elle est eulérienne : {}".format(len(used), self.nb_segment, len(set(used)) == len(used)))
+            dispo = self.liste_segments_non_utilises(point, used)
+            if nombre_passage != 0:
+                dispo[0], dispo[nombre_passage] = dispo[nombre_passage], dispo[0]
+            if len(dispo) > 1:
+                if point != pt_restore[-1]:
+                    restore = used.copy()
+                    pt_restore.append(point)
+                    print(pt_restore[-1])
+                    nombre_passage = 0
+            if len(dispo) == 0:
+                print("ON PASSE DANS 0 SEGMENTS")
+                if len(used) == self.nb_segment:
+                    return used
+                point = pt_restore.pop()
+                used = restore
+                nombre_passage += 1
+                continue
+            used.append(Segment([point, dispo[0]]))
+            point = dispo[0].endpoint_not(point)
+            compteur += 1
+        print("Algo en n³, aucun intérêt ma louloute")
+        return Graph(used)
 
-    def iterateur_segments_non_utilises(self, point, used):
+    def liste_segments_non_utilises(self, point, used):
         '''
         return all segment available from a point that haven't being used before
         '''
-        pass
+        if point not in self.vertices.keys():
+            print("Comment on peut avoir un point fantôme ?")
+        if len(self.vertices[point]) == 0:
+            return []
+        return [segment for segment in self.vertices[point] if  segment not in used]
