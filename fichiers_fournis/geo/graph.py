@@ -170,11 +170,48 @@ class Graph:
         nombre = len([point for point in self.vertices.keys() if len(self.vertices[point])%2])
         return nombre == 0
 
+    def eulerian_cycle(self, premier=1):
+        """
+        return eulerian_cycle
+        """
+        if premier:
+            self.point = next(iter(self.vertices.keys()))
+        cycle_q = self.cycle_quelconque(self.point)
+        if len(cycle_q)==self.nb_segment:
+            return cycle_q
+        cycle_e = []
+        for poin in cycle_q:
+            self.point = poin
+            cycle_e.append(self.eulerian_cycle(0))
+        print(cycle_e)
+        return Graph(cycle_e)
+
+    def cycle_quelconque(self, point):
+        """
+        return a cycle that originates from point
+        Cycle has no proprieties other than being a cycle
+        """
+        origine = point
+        if len(self.vertices[point])==0:
+            return []
+        segment = self.vertices[point].pop(0)
+        point_suivant = segment.endpoint_not(point)
+        cycle = [point]
+        while point_suivant != origine:
+            point = point_suivant
+            if len(self.vertices[point])==0:
+                return []
+            segment = self.vertices[point].pop(0)
+            point_suivant = segment.endpoint_not(point)
+            cycle.append(point)
+        return cycle
 
 
-    def eulerian_cycle(self):
+
+    def eulerian_cycle2(self):
         """
         return eulerian cycle. precondition: all degrees are even.
+        does the trick, but in more than exponential complexity
         """
         """ Alors voilà l'idée : on part d'un point, et on tente d'établir un cycle depuis
         un point du graphe, et on suit à chaque fois le premier segment disponible par un interateur
@@ -189,43 +226,46 @@ class Graph:
             break
         print(point)
         used = []
-        pt_restore = [point]
+        restore = []
+        pt_restore = [[point, 0]]
         compteur = 0
-        nombre_passage = 0
-        while compteur < self.nb_segment **3 and len(used) <= self.nb_segment:
-            print("passage numéro : {}".format(compteur))
-            print("On a une chaîne de {} segments sur les {} voulus, et elle est eulérienne : {}".format(len(used), self.nb_segment, len(set(used)) == len(used)))
-            print("Il s'agit du {} passage sur ce point".format(nombre_passage))
+        while len(used) <= self.nb_segment:
+            compteur += 1
+            if compteur % 100000 == 1:
+                print(compteur)
             dispo = self.liste_segments_non_utilises(point, used)
-            if nombre_passage != 0:
-                print(len(dispo))
-                dispo[0], dispo[nombre_passage] = dispo[nombre_passage], dispo[0]
-                print(dispo[0]!=dispo[nombre_passage])
-            if len(dispo) > 1:
-                if point != pt_restore[-1]:
-                    restore = used.copy()
-                    pt_restore.append(point)
-                    nombre_passage = 0
+            '''print("passage numéro : {}".format(compteur))
+            print("On a une chaîne de {} segments sur les {} voulus, et elle est eulérienne : {}".format(len(used), self.nb_segment, len(set(used)) == len(used)))
+            print("Le point considéré est {}".format(point))
+            print("Il s'agit du {} passage sur ce point, et il avait {} segments disponibles".format(pt_restore[-1][1], len(dispo)))
+            print("")'''
             if len(dispo) == 0:
-                print("ON PASSE DANS 0 SEGMENTS")
+                #print("ON PASSE DANS 0 SEGMENTS")
                 if len(used) == self.nb_segment:
                     return used
-                point = pt_restore.pop()
-                used = restore
-                nombre_passage += 1
-                continue
+                point = pt_restore.pop()[0]
+                used = restore.pop()
+                pt_restore[-1][1] += 1
+            if pt_restore[-1][1] != 0:
+                if pt_restore[-1][1] >= len(dispo):
+                    #print("On a utilisé tous les segments de ce point, aucun ne va converge")
+                    point = pt_restore.pop()[0]
+                    used = restore.pop()
+                    pt_restore[-1][1] += 1
+                    continue
+                dispo[0], dispo[pt_restore[-1][1]] = dispo[pt_restore[-1][1]], dispo[0]
+            if len(dispo) > 1:
+                if point != pt_restore[-1][0]:
+                    restore.append(used.copy())
+                    pt_restore.append([point,0])
             used.append(dispo[0])
             point = dispo[0].endpoint_not(point)
-            compteur += 1
-        print("Algo en n³, aucun intérêt ma louloute")
         return Graph(used)
 
     def liste_segments_non_utilises(self, point, used):
         '''
         return all segment available from a point that haven't being used before
         '''
-        if point not in self.vertices.keys():
-            print("Comment on peut avoir un point fantôme ?")
         if len(self.vertices[point]) == 0:
             return []
         return [segment for segment in self.vertices[point] if  segment not in used]
