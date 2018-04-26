@@ -1,107 +1,62 @@
-'''
-hash function
-'''
-
 from geo.segment import Segment
 from geo.quadrant import Quadrant
-from math import floor
+from math import floor, ceil
+TAILLE_ENVIRONNEMENT = 3
 
-TAILLE_ENVIRONNEMENT = 1
-
-''' Le pseudo code à produire est le suivant, dans la fonction ordered_segments :
-Entrées : points considérés
-Sorties : itérateur sur des segments
-t ← précision de départ;
-tables ← {hasher(points, t)};
-tant que deux points sont en collision dans les dernières tables faire
-    t ← t/2;
-    tables ← tables ∪ {hasher(points, t)};
-fin
-pour chaque jeu de tables, des dernières, aux premières faire
-    pour chaque table parmi les 4 du jeu faire
-        pour chaque clef faire
-            pour chaque combinaison de valeurs ass
-Au 5 ème passage, on a la liste de point : [(0.037499981373535246, -0.057596208058798976), (-0.18529941782343998, 0.07230760250886681), (0.17920931385274635, -0.057596208058798976), (-0.024891443571935172, -0.1656
-6132602097403)]
-Au 6 ème passage, on aociées à la clef faire
-                proposer le segment;
-            fin
-        fin
-    fin
-fin
-'''
-
-def construire_hashage(points, t):
+def construire_hashage(points, precision):
     """
-    construit à partir de l'itérateur des points et d'une précision donnée
-    le mappage spatial: tableau de 4 tables de hashage dont les clés sont le
-    coin haut-gauche, et les valeurs les vecteurs de points contenus dans la cellule
+    construit la structure de 4 tables de hashage
     """
-    structure = [{}, {}, {}, {}]
-    borne_cellule = floor(TAILLE_ENVIRONNEMENT/t)
-    for i in range(-borne_cellule, borne_cellule):
-        for j in range(-borne_cellule, borne_cellule):
-            structure[0][(i, j)] = []
-            structure[1][(i, j)] = []
-            structure[2][(i, j)] = []
-            structure[3][(i, j)] = []
+    structure = [{},{},{},{}]
+    borne = floor(TAILLE_ENVIRONNEMENT/precision)
+    for i in range(-borne, borne):
+        for j in range(-borne, borne):
+            structure[0][(i,j)] = []
+            structure[1][(i,j)] = []
+            structure[2][(i,j)] = []
+            structure[3][(i,j)] = []
     for point in points:
-        cells = hacher(point, t)
-        structure[0][cells[0]].append(point)
-        structure[1][cells[1]].append(point)
-        structure[2][cells[2]].append(point)
-        structure[3][cells[3]].append(point)
+        c0, c1, c2, c3 = hacher(point, precision)
+        structure[0][c0].append(point)
+        structure[1][c1].append(point)
+        structure[2][c2].append(point)
+        structure[3][c3].append(point)
     return structure
-
 
 def hacher(point, t):
     '''
     renvoie les cellules correspondantes au point
     '''
     px, py = point.coordinates
-    cellule1 = (floor(px/t), floor(py/t))
-    cellule2 = (floor((px + t/2)/t), floor(py/t))
-    cellule3 = (floor(px/t), floor((py + t/2)/t))
-    cellule4 = (floor((px + t/2)/t), floor((py + t/2)/t))
+    cellule1 = (ceil(px/t), ceil(py/t))
+    cellule2 = (ceil((px + t/2)/t), ceil(py/t))
+    cellule3 = (ceil(px/t), ceil((py + t/2)/t))
+    cellule4 = (ceil((px + t/2)/t), ceil((py + t/2)/t))
     return (cellule1, cellule2, cellule3, cellule4)
 
-def collisions(structure):
+def collision(structure):
     """
-    Determine si les 4 dernières tables de la structure contiennent des collisions
+    Teste s'il y a des collisions au sein des tables de meilleure précision
     """
     for table in structure[0:4]:
-        for key in table.keys():
-            if len(table[key]) > 1:
-                print(table[key], Segment([table[key][0],table[key][1]]).length())
+        for cellule in table.keys():
+            if len(table[cellule]) > 1:
                 return True
     return False
 
-def produit_cartesien(liste1, liste2):
+def ordered_segments(points):
     """
-    renvoie le produit cartesien de 2 listes
+    Itère sur les segments envisageables de plus en plus grands
     """
-    produit = []
-    for element in liste1:
-        for flement in liste2:
-            produit.append([element, flement])
-    return produit
-
-def ordered_segments(points_consideres):
-    '''
-    requires an array of the considered points
-    returns an iterable of segments
-    '''
     t = 1
-    tables = construire_hashage(points_consideres, t)
-    while collisions(tables):
+    structure = construire_hashage(points, t)
+    while(collision(structure)):
         t = t/2
-        tables =  construire_hashage(points_consideres, t) + tables
-        print(len(tables)//4)
-    for i in range(0, (len(tables))//4):
-        tables_considerees = tables[4*i : 4*i + 4]
-        #print(tables_considerees)
-        liste_points = [point for point in tables_considerees[0].values()] + [point for point in tables_considerees[1].values()] + [point for point in tables_considerees[2].values()] + [point for point in tables_considerees[3].values()]
-        for couple in produit_cartesien(liste_points, liste_points):
-            if couple[0] != couple[1]:
-                print(couple)
-                yield Segment(couple)
+        structure = construire_hashage(points, t) + structure
+    for i in range(0, len(structure)//4):
+        tabl = structure[4*i : 4*i + 4]
+        liste_points = [val[0] for val in list(tabl[0].values()) + list(tabl[1].values()) + list(tabl[2].values()) + list(tabl[3].values()) if val != []]
+        for j in range(0, len(liste_points)):
+            for k in range(j+1, len(liste_points)):
+                seg = Segment([liste_points[j], liste_points[k]])
+                yield seg
