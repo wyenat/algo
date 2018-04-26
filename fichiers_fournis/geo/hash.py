@@ -1,7 +1,7 @@
 from geo.segment import Segment
 from geo.quadrant import Quadrant
-from math import floor
-TAILLE_ENVIRONNEMENT = 1
+from math import floor, ceil
+TAILLE_ENVIRONNEMENT = 3
 
 def construire_hashage(points, precision):
     """
@@ -28,10 +28,10 @@ def hacher(point, t):
     renvoie les cellules correspondantes au point
     '''
     px, py = point.coordinates
-    cellule1 = (floor(px/t), floor(py/t))
-    cellule2 = (floor((px + t/2)/t), floor(py/t))
-    cellule3 = (floor(px/t), floor((py + t/2)/t))
-    cellule4 = (floor((px + t/2)/t), floor((py + t/2)/t))
+    cellule1 = (ceil(px/t), ceil(py/t))
+    cellule2 = (ceil((px + t/2)/t), ceil(py/t))
+    cellule3 = (ceil(px/t), ceil((py + t/2)/t))
+    cellule4 = (ceil((px + t/2)/t), ceil((py + t/2)/t))
     return (cellule1, cellule2, cellule3, cellule4)
 
 def collision(structure):
