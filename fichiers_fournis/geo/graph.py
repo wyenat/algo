@@ -124,7 +124,6 @@ class Graph:
             return
         else:
             self.points_degre_impair = [point for point in self.vertices.keys() if len(self.vertices[point])%2]
-            print(len(self.points_degre_impair))
             segments = self.quad_iter_impaire()
             compteur = 0
             while len(self.points_degre_impair) > 0 and compteur < len(segments):
@@ -138,7 +137,6 @@ class Graph:
                             self.points_degre_impair.remove(segment.endpoints[1])
                             self.nb_segment += 1
                 compteur += 1
-            print("On sort de la boucle en {} étapes".format(compteur))
             if len(self.points_degre_impair) == 2:
                 #Il faut encore tracer le segment entre les 2 derniers points
                 p1 = self.points_degre_impair[0]
@@ -181,7 +179,6 @@ class Graph:
         segments = []
         for i in range(len(graphe)-1):
             segments.append(Segment([graphe[i], graphe[i+1]]))
-        print(segments)
         return Graph(segments)
 
     def create_eulerian(self, point):
@@ -209,66 +206,5 @@ class Graph:
         while point != origine:
             cycle.append(point)
             point = self.vertices[point].pop(0).endpoint_not(point)
+        cycle.append(point)
         return [points for points in cycle]
-
-    def eulerian_cycle2(self):
-        """
-        return eulerian cycle. precondition: all degrees are even.
-        does the trick, but in more than exponential complexity
-        """
-        """ Alors voilà l'idée : on part d'un point, et on tente d'établir un cycle depuis
-        un point du graphe, et on suit à chaque fois le premier segment disponible par un interateur
-        sur les segments, en le notant dans un tableau des segments utilisés :
-        - s'il y en a plus de deux, on sauvegarde l'état des segments utilisés
-        avant de faire ce choix, puis on prend le premier
-        - s'il n'y en pas, on revient à l'état sauvagardé, et on place le choix qu'on avait fait en premier
-        en dernier, puis on réapplique l'algorithme
-         """
-        for poin in self.vertices.keys():
-            point = poin
-            break
-        print(point)
-        used = []
-        restore = []
-        pt_restore = [[point, 0]]
-        compteur = 0
-        while len(used) <= self.nb_segment:
-            compteur += 1
-            if compteur % 100000 == 1:
-                print(compteur)
-            dispo = self.liste_segments_non_utilises(point, used)
-            '''print("passage numéro : {}".format(compteur))
-            print("On a une chaîne de {} segments sur les {} voulus, et elle est eulérienne : {}".format(len(used), self.nb_segment, len(set(used)) == len(used)))
-            print("Le point considéré est {}".format(point))
-            print("Il s'agit du {} passage sur ce point, et il avait {} segments disponibles".format(pt_restore[-1][1], len(dispo)))
-            print("")'''
-            if len(dispo) == 0:
-                #print("ON PASSE DANS 0 SEGMENTS")
-                if len(used) == self.nb_segment:
-                    return used
-                point = pt_restore.pop()[0]
-                used = restore.pop()
-                pt_restore[-1][1] += 1
-            if pt_restore[-1][1] != 0:
-                if pt_restore[-1][1] >= len(dispo):
-                    #print("On a utilisé tous les segments de ce point, aucun ne va converge")
-                    point = pt_restore.pop()[0]
-                    used = restore.pop()
-                    pt_restore[-1][1] += 1
-                    continue
-                dispo[0], dispo[pt_restore[-1][1]] = dispo[pt_restore[-1][1]], dispo[0]
-            if len(dispo) > 1:
-                if point != pt_restore[-1][0]:
-                    restore.append(used.copy())
-                    pt_restore.append([point,0])
-            used.append(dispo[0])
-            point = dispo[0].endpoint_not(point)
-        return Graph(used)
-
-    def liste_segments_non_utilises(self, point, used):
-        '''
-        return all segment available from a point that haven't being used before
-        '''
-        if len(self.vertices[point]) == 0:
-            return []
-        return [segment for segment in self.vertices[point] if  segment not in used]
