@@ -170,43 +170,46 @@ class Graph:
         nombre = len([point for point in self.vertices.keys() if len(self.vertices[point])%2])
         return nombre == 0
 
-    def eulerian_cycle(self, premier=1):
+    def eulerian_cycle(self):
+        """
+        hihi
+        """
+        for point in self.vertices.keys():
+            premier_point = point
+            break
+        graphe = self.create_eulerian(premier_point)
+        segments = []
+        for i in range(len(graphe)-1):
+            segments.append(Segment([graphe[i], graphe[i+1]]))
+        print(segments)
+        return Graph(segments)
+
+    def create_eulerian(self, point):
         """
         return eulerian_cycle
         """
-        if premier:
-            self.point = next(iter(self.vertices.keys()))
-        cycle_q = self.cycle_quelconque(self.point)
-        if len(cycle_q)==self.nb_segment:
-            return cycle_q
-        cycle_e = []
-        for poin in cycle_q:
-            self.point = poin
-            cycle_e.append(self.eulerian_cycle(0))
-        print(cycle_e)
-        return Graph(cycle_e)
+        voisins = [segment.endpoint_not(point) for segment in self.vertices[point]]
+        if len(voisins)==0:
+            return [point]
+        else:
+            C = self.cycle_quelconque(point)
+            R = []
+            for punto in C:
+                R= R + self.create_eulerian(punto)
+            return R
+
 
     def cycle_quelconque(self, point):
         """
         return a cycle that originates from point
-        Cycle has no proprieties other than being a cycle
         """
         origine = point
-        if len(self.vertices[point])==0:
-            return []
-        segment = self.vertices[point].pop(0)
-        point_suivant = segment.endpoint_not(point)
         cycle = [point]
-        while point_suivant != origine:
-            point = point_suivant
-            if len(self.vertices[point])==0:
-                return []
-            segment = self.vertices[point].pop(0)
-            point_suivant = segment.endpoint_not(point)
+        point = self.vertices[point].pop(0).endpoint_not(point)
+        while point != origine:
             cycle.append(point)
-        return cycle
-
-
+            point = self.vertices[point].pop(0).endpoint_not(point)
+        return [points for points in cycle]
 
     def eulerian_cycle2(self):
         """
