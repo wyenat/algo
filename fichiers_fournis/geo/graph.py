@@ -7,6 +7,8 @@ from geo.union import UnionFind
 from geo.segment import Segment
 from geo.point import Point
 from geo.hash import ordered_segments
+from geo.tycat import tycat
+from time import sleep
 
 class Graph:
     """
@@ -170,7 +172,7 @@ class Graph:
 
     def eulerian_cycle(self):
         """
-        hihi
+        return eulerian_cycle
         """
         for point in self.vertices.keys():
             premier_point = point
@@ -179,7 +181,8 @@ class Graph:
         segments = []
         for i in range(len(graphe)-1):
             segments.append(Segment([graphe[i], graphe[i+1]]))
-        return Graph(segments)
+        tycat(segments)
+        return segments
 
     def create_eulerian(self, point):
         """
@@ -189,11 +192,11 @@ class Graph:
         if len(voisins)==0:
             return [point]
         else:
-            C = self.cycle_quelconque(point)
-            R = []
-            for punto in C:
-                R= R + self.create_eulerian(punto)
-            return R
+            cycle = self.cycle_quelconque(point)
+            Liste = []
+            for punto in cycle:
+                Liste= Liste + self.create_eulerian(punto)
+            return Liste
 
 
     def cycle_quelconque(self, point):
