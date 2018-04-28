@@ -41,19 +41,6 @@ class Graph:
         edges = (e for (p, edges) in self.vertices.items() for e in edges if e.endpoints[0] == p)
         return "\n".join(c.svg_content() for c in chain(self.vertices.keys(), edges))
 
-    ''' Pseudo code 1 : pour cette fonction :
-    Entrées : G : Graphe
-    soit C l’ensemble des composantes connexes de G;
-    pour chaque segment (p 1 , p 2 )donné par l’itérateur faire
-        si p 1 et p 2 appartiennent à deux composantes différentes alors
-            ajouter (p 1 , p 2 ) aux arètes de G;
-            fusionner les deux composantes correspondantes de C;
-        fin
-        si |C| = 1 alors
-            retourner
-        fin
-    fin '''
-
     def reconnect(self, hash_points):
         """
         greedily add edges until graph is fully connected.
@@ -181,14 +168,17 @@ class Graph:
         segments = []
         for i in range(len(graphe)-1):
             segments.append(Segment([graphe[i], graphe[i+1]]))
-        tycat(segments)
+        print("Chaque segment est parcouru une unique fois : {}".format(len(segments)==self.nb_segment))
         return segments
 
     def create_eulerian(self, point):
         """
         return eulerian_cycle
         """
-        voisins = [segment.endpoint_not(point) for segment in self.vertices[point]]
+        if point in self.vertices.keys():
+            voisins = [segment.endpoint_not(point) for segment in self.vertices[point]]
+        else:
+            return []
         if len(voisins)==0:
             return [point]
         else:
@@ -203,11 +193,18 @@ class Graph:
         """
         return a cycle that originates from point
         """
-        origine = point
+        origine = point.copy()
         cycle = [point]
-        point = self.vertices[point].pop(0).endpoint_not(point)
+        segment = self.vertices[point].pop(0)
+        point = segment.endpoint_not(point)
+        self.vertices[point].remove(segment)
         while point != origine:
             cycle.append(point)
-            point = self.vertices[point].pop(0).endpoint_not(point)
+            if len(self.vertices[point]) == 0:
+                point = origine
+                continue
+            segment = self.vertices[point].pop(0)
+            point = segment.endpoint_not(point)
+            self.vertices[point].remove(segment)
         cycle.append(point)
         return [points for points in cycle]
