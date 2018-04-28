@@ -67,12 +67,16 @@ Notre implémentation de cet algorithme ne s'execute pas en temps raisonnable po
 L'algorithme naïf consiste à parcourir l'ensemble des points une première fois pour compter les points de degré impairs,
 puis on parcourt l'ensemble des couples de points du graphe par ordre croissant jusqu'à ce qu'il n'y ait plus de sommets de
 degré impair, la complexité temporelle de cet algorithme est un $O(n²log(n))$. On a optimisé cet algorithme en ne triant et en n'
-iterant que sur les sommets de degré impair. La complexité dans le pire des cas reste un $O(n²log(n))$ mais elle est général bien
+iterant que sur les sommets de degré impair. La complexité dans le pire des cas (pavage par des hexagones par exemple : tous les points sont de degré 3) reste un $O(n²log(n))$ mais elle est général bien
 moins importante (voir la partie perfomances).
 
 \subsubsection{Algorithme avec table de hashage}
 
-pas implémenté
+L'itérateur sur les segments ne modifie pas la méthode employée dans l'algorithme précédé, car on
+l'applique uniquement sur les points de degré impairs, ce qui conserve l'amélioration faite dans
+l'algo précédent. Dans le pire des cas, où on doit parcourir tous les points, la différence entre
+cet algorithme et celui quadratique est la même que pour l'algorithme précédent.
+
 
 \subsection{Détection d'un cycle eulerien}
 

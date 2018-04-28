@@ -67,6 +67,7 @@ class Graph:
                     self.vertices[segments_tries[compteur].endpoints[1]].append(segments_tries[compteur])
                     self.nb_segment +=1
                 compteur += 1
+        print("Le graphe est connexe : ", self.connexes.size == 1)
 
     def composantes_connexes(self):
         """
@@ -109,35 +110,32 @@ class Graph:
         if hash_points is true then use hashed segments iterator
         else use quadratic segments iterator.
         """
-        if hash_points:
-            return
-        else:
-            self.points_degre_impair = [point for point in self.vertices.keys() if len(self.vertices[point])%2]
-            segments = self.quad_iter_impaire()
-            compteur = 0
-            while len(self.points_degre_impair) > 0 and compteur < len(segments):
-                segment = segments[compteur]
-                if (segment.endpoints[0] in self.points_degre_impair):
-                    if (segment.endpoints[1] in self.points_degre_impair):
-                        if segment.endpoints[0] != segment.endpoints[1]:
-                            self.vertices[segment.endpoints[0]].append(segment)
-                            self.vertices[segment.endpoints[1]].append(segment)
-                            self.points_degre_impair.remove(segment.endpoints[0])
-                            self.points_degre_impair.remove(segment.endpoints[1])
-                            self.nb_segment += 1
-                compteur += 1
-            if len(self.points_degre_impair) == 2:
-                #Il faut encore tracer le segment entre les 2 derniers points
-                p1 = self.points_degre_impair[0]
-                p2 = self.points_degre_impair[1]
-                segment = Segment([p1, p2])
-                self.vertices[p1].append(segment)
-                self.vertices[p2].append(segment)
-                self.points_degre_impair.remove(p1)
-                self.points_degre_impair.remove(p2)
-                self.nb_segment += 1
-            self.points_degre_impair = [point for point in self.vertices.keys() if len(self.vertices[point])%2]
-            print("Le graphe ne contient que des degrés pairs : {}".format(self.has_even_degrees()))
+        self.points_degre_impair = [point for point in self.vertices.keys() if len(self.vertices[point])%2]
+        segments = (list(ordered_segments(self.points_degre_impair)) if hash_points else self.quad_iter_impaire())
+        compteur = 0
+        while len(self.points_degre_impair) > 0 and compteur < len(segments):
+            segment = segments[compteur]
+            if (segment.endpoints[0] in self.points_degre_impair):
+                if (segment.endpoints[1] in self.points_degre_impair):
+                    if segment.endpoints[0] != segment.endpoints[1]:
+                        self.vertices[segment.endpoints[0]].append(segment)
+                        self.vertices[segment.endpoints[1]].append(segment)
+                        self.points_degre_impair.remove(segment.endpoints[0])
+                        self.points_degre_impair.remove(segment.endpoints[1])
+                        self.nb_segment += 1
+            compteur += 1
+        if len(self.points_degre_impair) == 2:
+            #Il faut encore tracer le segment entre les 2 derniers points
+            p1 = self.points_degre_impair[0]
+            p2 = self.points_degre_impair[1]
+            segment = Segment([p1, p2])
+            self.vertices[p1].append(segment)
+            self.vertices[p2].append(segment)
+            self.points_degre_impair.remove(p1)
+            self.points_degre_impair.remove(p2)
+            self.nb_segment += 1
+        self.points_degre_impair = [point for point in self.vertices.keys() if len(self.vertices[point])%2]
+        print("Le graphe ne contient que des degrés pairs : {}".format(self.has_even_degrees()))
 
     def quad_iter_impaire(self):
         '''
