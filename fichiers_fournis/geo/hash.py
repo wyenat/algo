@@ -1,7 +1,6 @@
 from geo.segment import Segment
 from geo.quadrant import Quadrant
 from math import floor, ceil
-TAILLE_ENVIRONNEMENT = 3
 
 def construire_hashage(points, precision):
     """
@@ -9,8 +8,8 @@ def construire_hashage(points, precision):
     """
     structure = [{},{},{},{}]
     borne = floor(TAILLE_ENVIRONNEMENT/precision)
-    for i in range(-borne, borne):
-        for j in range(-borne, borne):
+    for i in range(-1 -borne, borne + 2):
+        for j in range(-1 -borne, borne +2 ):
             structure[0][(i,j)] = []
             structure[1][(i,j)] = []
             structure[2][(i,j)] = []
@@ -48,7 +47,9 @@ def ordered_segments(points):
     """
     Itère sur les segments envisageables de plus en plus grands
     """
-    t = 1
+    global TAILLE_ENVIRONNEMENT
+    TAILLE_ENVIRONNEMENT = max(max([abs(p.coordinates[0]) for p in points]), max([abs(p.coordinates[1]) for p in points]))
+    t = TAILLE_ENVIRONNEMENT
     structure = construire_hashage(points, t)
     while(collision(structure)):
         t = t/2
