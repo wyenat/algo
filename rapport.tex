@@ -55,7 +55,7 @@ dans les situations pas trop tordues, le gain en temps est considerable.
 L'algorithme avec table de hashage consiste à construire un mappage spatial pour repérer les points par rapport
 aux autres, et ensuite ajouter de manière gloutonne de manière quasiment ordonnée (on ne trouve pas nécessairement
 les plus petits segments, mais les segments du même ordre de grandeur que le plus petit). Le gain en complexité temporelle
-est considerable, a priori, et s'écrit $O(nlog(\alpha))$ où $\alpha$ est la plus petite distance entre deux points du graphe.
+est considerable, a priori, et s'écrit $O(nlog(\frac{1}^{\alpha}))$ où $\alpha$ est la plus petite distance entre deux points du graphe.
 Néanmoins, la complexité spatiale s'écrit $O(4^{\alpha})$ ce qui est extremement problématique dès qu'on a deux points très proches,
 car le coût temporel pour instancier de tels objets devient alors très important.
 Notre implémentation de cet algorithme ne s'execute pas en temps raisonnable pour la majorité des figures (c'est certainement dû
