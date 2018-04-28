@@ -76,7 +76,11 @@ pas implémenté
 
 \subsection{Détection d'un cycle eulerien}
 
-g pa kompri
+Pour le calcul d'un cycle eulerien, on a implémenté l'agorithme d'Euler, qui admet une complexité temporelle $O(n)$. Cet algorithme consiste à passer sur des cycles quelconques du graphe en supprimant les segments
+utilisés, et pour chaque point de ces cycles refaire cette manipulation. Le fait que le graphe soit à la fois connexe et que toutes
+les arêtes soient de degré pairs nous assure la convergence et la correction du code. Comme on ne parcourt qu'une seule fois
+chaque arrête du graphe, et que les opérations qu'on effectue lors du parcourt ne sont que des suppressions et des ajouts
+de point dans une liste, qui sont instantanées, le passage de l'algorithme est bien en $O(n)$.
 
 \section{Tests de performance}
 
