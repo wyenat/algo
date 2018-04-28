@@ -1,0 +1,12 @@
+\select@language {french}
+\contentsline {section}{\numberline {1}Introduction}{2}
+\contentsline {section}{\numberline {2}Revue des algorithmes}{2}
+\contentsline {subsection}{\numberline {2.1}Reconnexion des composantes connexes}{2}
+\contentsline {subsubsection}{\numberline {2.1.1}Algorithme quadratique}{2}
+\contentsline {subsubsection}{\numberline {2.1.2}Algorithme avec table de hashage}{2}
+\contentsline {subsection}{\numberline {2.2}Construction du graphe de degr\IeC {\'e}s pairs}{2}
+\contentsline {subsubsection}{\numberline {2.2.1}Algorithme quadratique}{2}
+\contentsline {subsubsection}{\numberline {2.2.2}Algorithme avec table de hashage}{3}
+\contentsline {subsection}{\numberline {2.3}D\IeC {\'e}tection d'un cycle eulerien}{3}
+\contentsline {section}{\numberline {3}Tests de performance}{3}
+\contentsline {section}{\numberline {4}Conclusion}{3}
