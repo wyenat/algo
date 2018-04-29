@@ -55,7 +55,7 @@ dans les situations pas trop tordues, le gain en temps est considerable.
 L'algorithme avec table de hashage consiste à construire un mappage spatial pour repérer les points par rapport
 aux autres, et ensuite ajouter de manière gloutonne de manière quasiment ordonnée (on ne trouve pas nécessairement
 les plus petits segments, mais les segments du même ordre de grandeur que le plus petit). Le gain en complexité temporelle
-est considerable, a priori, et s'écrit $O(nlog(\frac{1}{\alpha}))$ où $\alpha$ est la plus petite distance entre deux points du graphe.
+est considerable, a priori, et s'écrit $O(nlog(\frac{1}{\alpha}))$ où $\alpha$ est le rapport de la plus petite distance entre deux points du graphe et de la taille d'image.
 Néanmoins, la complexité spatiale s'écrit $O(4^{\alpha})$ ce qui est extremement problématique dès qu'on a deux points très proches,
 car le coût temporel pour instancier de tels objets devient alors très important.
 Notre implémentation de cet algorithme ne s'execute pas en temps raisonnable pour la majorité des figures (c'est certainement dû
@@ -72,7 +72,7 @@ moins importante (voir la partie perfomances).
 
 \subsubsection{Algorithme avec table de hashage}
 
-L'itérateur sur les segments ne modifie pas la méthode employée dans l'algorithme précédé, car on
+L'itérateur sur les segments ne modifie pas la méthode employée dans l'algorithme précédant, car on
 l'applique uniquement sur les points de degré impairs, ce qui conserve l'amélioration faite dans
 l'algo précédent. Dans le pire des cas, où on doit parcourir tous les points, la différence entre
 cet algorithme et celui quadratique est la même que pour l'algorithme précédent.
@@ -128,12 +128,12 @@ La fonction eulerian cycle, telle qu'effectue, semble très performante et ne d�
 Le graphe suivant représente le temps mis par l'algorithme en fonction du nombre de points :
 $$ \includegraphics[scale = 0.75]{eularian.png} $$
 Il semble ainsi être, conformément à ce qui était prévu, linéaire et indépendant de la géométrie du graphe. (Les points
-irréguliers sont dus au passage du ramasse miettes.)
+irréguliers sont dus au passage du ramasse miettes où à d'autres processus fonctionnant en parallèle.)
 \section{Conclusion}
 
 Les différentes modifications effectuées sur les algorithmes permettent d'avoir un temps d'exécution plus court
 qu'avec les algorithmes donnés de base. Nous n'avons pas réussi à faire fonctionner la méthode hash.py suffisement efficacement
 pour qu'on arrive à des résultats convenables: il faut néanmoins noter que la méthode quadratique améliorée offre,
-une alternative correcte, du moment qu'on ne se situe pas dans le pire des cas. 
+une alternative correcte, du moment qu'on ne se situe pas dans le pire des cas.
 
 \end{document}
