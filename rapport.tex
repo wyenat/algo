@@ -2,7 +2,7 @@
 
 \usepackage[utf8x]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[francais]{babel}
+\usepackage[french]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage{fullpage}
 \usepackage{xspace}
@@ -55,7 +55,7 @@ dans les situations pas trop tordues, le gain en temps est considerable.
 L'algorithme avec table de hashage consiste à construire un mappage spatial pour repérer les points par rapport
 aux autres, et ensuite ajouter de manière gloutonne de manière quasiment ordonnée (on ne trouve pas nécessairement
 les plus petits segments, mais les segments du même ordre de grandeur que le plus petit). Le gain en complexité temporelle
-est considerable, a priori, et s'écrit $O(nlog(\frac{1}^{\alpha}))$ où $\alpha$ est la plus petite distance entre deux points du graphe.
+est considerable, a priori, et s'écrit $O(nlog(\frac{1}{\alpha}))$ où $\alpha$ est la plus petite distance entre deux points du graphe.
 Néanmoins, la complexité spatiale s'écrit $O(4^{\alpha})$ ce qui est extremement problématique dès qu'on a deux points très proches,
 car le coût temporel pour instancier de tels objets devient alors très important.
 Notre implémentation de cet algorithme ne s'execute pas en temps raisonnable pour la majorité des figures (c'est certainement dû
@@ -88,10 +88,52 @@ de point dans une liste, qui sont instantanées, le passage de l'algorithme est 
 
 \section{Tests de performance}
 
-hihihi.jpeg
+Du fait qu'ils aient été partiellement optimisés, les algorithmes dépendent plus de la géographie générale des
+graphe que du nombre de point.
+Pour tester les performances des algorithmes, un programme $tests.py$ a été implémenté, et permet de faire
+apparaître le nombre de points et les temps mis par les différents algorithmes pour chaque fichier entré, ces données seront
+stoquées dans le fichier $tests_hash.txt$.
 
+\subsection{Reconnect}
+
+Sur une figure déjà connexe, l'algorithme $reconnect$ va être extrêmement performant,
+même si elle possède beaucoup de points à traiter, comme on peut le voir sur les deux exemples suivant, respectivement
+la figurine 0 et la figurine 20  :
+$$ \includegraphics[scale = 0.25]{figurine_0.png} $$
+$$ \includegraphics[scale = 0.25]{figurine_20.png} $$
+Les deux ont un nombre de segments très similaire : respectivement 5392 et 5362 mais une géométrie très différente :
+figurine 0 est déjà connexe, et figure 20 est composée de 3 parties connexes comportants chacune beaucoup de points.
+On a ainsi une différence dans le temps d'exécution, où la figurine 0 prend 0.26851797103881836s à être traitée
+et la figurine 20 prend 28.114733695983887 s à  être traitée. C'est un rapport supérieur à 100 qui confirme
+que les améliorations apportées à l'algorithme $reconnect$ le font fonctionner plus vite, car la version
+naïve proposée ne dépend que du nombre de points total et il n'y aurait pas de différence notoire entre ces deux
+figure.
+
+\subsection{Even degrees}
+
+De même, la fonction even degrees a été partiellement optimisée en n'itérant que sur les points de degré impair,
+ce qui la rend également très dépendante de la géométrie générale des graphes proposés.
+Ainsi, en reprenant les deux exemples donnés ci-dessus, on peut encore une fois observer l'utilité de l'optimisation apportée:
+La plupart des points de la figure 0 se situent dans des hexagones, et auront donc tous des degrés impairs : on se situe dans le
+cas où l'optimisation apportée n'améliore rien car quasiment tous les points sont itérés car de degré impairs.
+On effectue ainsi l'algorithme en 30.628416299819946 s.
+Dans le cas de la figurine 20, la plupart des points se trouvent dans les bords, où ils n'ont que 2 voisins et sont donc de degré
+pairs : l'algorithme n'itère donc que les autres, peu nombreux.
+On effectue alors l'algorithme en 2.713702917098999 s, soit plus de 10 fois plus rapidement, et ce cas reste encore loin du cas
+optimal où tous les points seraient de degré pair, ce qui donnera à cet algorithme une complexité linéaire.
+
+\subsection{Eulerian cycle}
+
+La fonction eulerian cycle, telle qu'effectue, semble très performante et ne dépend pas de la géométrie de la structure.
+Le graphe suivant représente le temps mis par l'algorithme en fonction du nombre de points :
+$$ \includegraphics[scale = 0.75]{eularian.png} $$
+Il semble ainsi être, conformément à ce qui était prévu, linéaire et indépendant de la géométrie du graphe. (Les points
+irréguliers sont dus au passage du ramasse miettes.)
 \section{Conclusion}
 
-pas fait
+Les différentes modifications effectuées sur les algorithmes permettent d'avoir un temps d'exécution plus court
+qu'avec les algorithmes donnés de base. Nous n'avons pas réussi à faire fonctionner la méthode hash.py suffisement efficacement
+pour qu'on arrive à des résultats convenables: il faut néanmoins noter que la méthode quadratique améliorée offre,
+une alternative correcte, du moment qu'on ne se situe pas dans le pire des cas. 
 
 \end{document}
