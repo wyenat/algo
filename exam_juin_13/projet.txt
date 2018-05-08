@@ -1,0 +1,58 @@
+
+--
+-- Nom    : MATTER
+-- Prenom : Vivien
+-- Groupe : G1
+--
+
+when S_Init =>
+    -- PC := 0
+    Cmd_ALU_X_Sel<="1000";
+    Cmd_ALU_Y_Sel<="110";
+    Cmd_ALU_OP<="0101";
+    Cmd_PC_WE<='1';
+    etat_futur <= S_Fetch_Wait;
+when S_Fetch_Wait =>
+    etat_futur <= S_Fetch;
+when S_Fetch =>
+    -- IR := Memoire(PC)
+    Cmd_IR_WE <= '1';
+    etat_futur <= S_decode;
+when S_decode =>
+    -- PC := PC + 4
+    Cmd_ALU_X_Sel <= "0001";
+    Cmd_ALU_Y_Sel <= "111";
+    Cmd_ALU_OP <= "0000";
+    Cmd_PC_WE <= '1';
+#_DEBUT_PROF_
+    if feedback_ir(31 downto 26) = "100011" then
+        etat_futur <= S_Addr;
+    else
+        etat_futur <= S_Init;
+    end if;
+when S_Addr =>
+    -- AD := $rs + imm
+    Cmd_ALU_X_Sel <= "0000";
+    Cmd_ALU_Y_Sel <= "001";
+    Cmd_ALU_OP <= "0000";
+    Cmd_AD_WE <= '1';
+    etat_futur <= S_PreLoad;
+when S_PreLoad =>
+    -- stabilisation du bus adresse
+    Cmd_ADDR_Sel <= '1';
+    etat_futur <= S_Load;
+when S_Load =>
+    -- DT := MEM(AD)
+    Cmd_ADDR_Sel <= '1';
+    Cmd_DT_WE <= '1';
+    etat_futur <= S_DT_to_RF;
+when S_DT_to_RF => 
+    -- $rt := DT
+    Cmd_ALU_X_Sel <= "0011";
+    Cmd_ALU_Y_Sel <= "110";
+    Cmd_ALU_OP <= "0101";
+    Cmd_RF_Sel <= feedback_ir(20 downto 16);
+    Cmd_RF_WE <= '1';
+    etat_futur <= S_Fetch_Wait;
+#_FIN_PROF_
+
